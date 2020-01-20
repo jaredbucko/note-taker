@@ -1,18 +1,25 @@
-var notes = require("../db/db");
+const journal = require("../journal");
+const fs = require("fs");
 
 module.exports = function(app) {
   app.get("/api/notes", function(req, res) {
-    res.json(notes);
+    res.json(journal);
   });
 
   app.post("/api/notes", function(req, res) {
-    notes.push(req.body);
-    res.json(true);
+    let newArray = [];
+    const notes = fs.readFileSync('journal.json');
+    if (notes.length>0) {
+      newArray = JSON.parse(notes);
+    };
+    const newNote = {
+      id: newArray.length + 1,
+      title: req.body.title,
+      text: req.body.text
+    };
+    newArray.push(newNote);
+    const string = JSON.stringify(newArray);
+    fs.writeFileSync('journal.json', string);
+    res.json(journal);
   });
-
-  // app.delete("/api/notes/:id", function(req, res) {
-  //   for (i=0; i<notes.length; i++) {
-
-  //   };
-  // });
 };
