@@ -2,8 +2,11 @@ const notes = require("../notes");
 const fs = require("fs");
 
 module.exports = function(app) {
+
   app.get("/api/notes", function(req, res) {
-    res.json(notes);
+    fs.readFile('notes.json', function(err, data) {
+      res.json(JSON.parse(data));
+    })
   });
 
   app.post("/api/notes", function(req, res) {
@@ -19,8 +22,10 @@ module.exports = function(app) {
     };
     newArray.push(newNote);
     const string = JSON.stringify(newArray);
-    fs.writeFileSync('notes.json', string);
-    res.json(notes);
+    fs.writeFile('notes.json', string, () => {
+      console.log("Note saved");
+    });
+    res.json(newArray);
   });
 
   app.delete("/api/notes/:id", function(req, res) {
@@ -33,9 +38,11 @@ module.exports = function(app) {
       oldNotes[i].id = i + 1;
       updatedArray.push(oldNotes[i]);
     };
-    const newString = JSON.stringify(updatedArray);
-    console.log(newString);
-    fs.writeFileSync('notes.json', newString);
-    res.json(notes);
+    // const newString = JSON.stringify(updatedArray);
+    fs.writeFile('notes.json', JSON.stringify(updatedArray), () => {
+      console.log(updatedArray);
+      res.json(notes);
+    });
   });
+
 };
